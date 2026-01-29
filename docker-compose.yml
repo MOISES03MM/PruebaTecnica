@@ -1,0 +1,37 @@
+services:
+  db:
+    image: mysql:8.0
+    restart: always
+    environment:
+      - MYSQL_ROOT_PASSWORD=reserva_root_password
+      - MYSQL_DATABASE=sistema_reserva
+      - MYSQL_USER=admin_reserva
+      - MYSQL_PASSWORD=reserva_pass
+    ports:
+      - "3306:3306"
+    volumes:
+      - db_data:/var/lib/mysql
+
+  app: 
+    build: ./sistema-de-reserva
+    container_name: sistema-de-reserva-app
+    restart: on-failure
+    ports:
+      - "8080:8080"
+    environment:
+      - SPRING_DATASOURCE_URL=jdbc:mysql://db:3306/sistema_reserva?createDatabaseIfNotExist=true
+      - SPRING_DATASOURCE_USERNAME=admin_reserva
+      - SPRING_DATASOURCE_PASSWORD=reserva_pass
+    depends_on:
+      - db
+
+  frontend: 
+    build: ./frontReserva
+    container_name: sistema-de-reserva-front
+    ports:
+      - "80:80" 
+    depends_on:
+      - app
+
+volumes:
+  db_data:
